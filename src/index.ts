@@ -12,24 +12,6 @@ import { Bot, Context, Keyboard, webhookCallback } from 'grammy';
 import { CONSTANTS } from './constants';
 import { installAgentCommands, promptAgentNotifications } from './commands/agent';
 
-function parseBotInfo(raw: string): any {
-	let s = (raw ?? '').trim();
-
-	for (let i = 0; i < 3; i++) {
-		try {
-			return JSON.parse(s);
-		} catch {
-			if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-				s = s.slice(1, -1);
-				continue;
-			}
-			s = s.replace(/\\"/g, '"');
-		}
-	}
-
-	throw new SyntaxError('Invalid BOT_INFO JSON');
-}
-
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
 	// MY_KV_NAMESPACE: KVNamespace;
@@ -52,7 +34,7 @@ export interface Env {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		const bot = new Bot(env.BOT_TOKEN, { botInfo: parseBotInfo(env.BOT_INFO) });
+		const bot = new Bot(env.BOT_TOKEN);
 
 		installAgentCommands(bot, env);
 
